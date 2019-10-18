@@ -1,0 +1,55 @@
+---
+title: "STOR556 Project Main"
+output: html_notebook
+---
+
+```{r}
+#import necessary packages
+library(readr)
+library(itsmr)
+#import R scripts
+source("~/Documents/differencing.R")
+source("~/Documents/stationarizing.R")
+#import data from local file
+co2_data <- read_table2("~/Downloads/co2_data.txt")
+x <- c(co2_data$interpolated)
+#plots of the initial time series
+plot(x, type="l", xlab="t", ylab=expression("X"["t"]*" (ppm)"), main=expression("Plot of X"["t"]))
+plota(x)
+```
+
+
+```{r}
+#use differencing function to remove seasonality and trend
+x.diff = differencing.12.1(x, 12, 1)
+#use autofit function to fit an arma to the stationary residuals
+x.diff.arma = autofit(x.diff, 0:5, 0:5)
+x.diff.resid = Resid(x.diff, NULL, x.diff.arma)
+#plot and test the new residuals
+plot(x.diff.resid, 
+     type="l", 
+     xlab="t", 
+     ylab="residuals", 
+     main="Plot of residuals after fitting ARMA(p,q)")
+plota(x.diff.resid)
+test(x.diff.resid)
+```
+
+```{r}
+#stationarize by deseasonlizing and subtracting fitted quadratic polynomial
+u = stationarizing(x, 12, 2)
+#use autofit function to fit an arma to the stationary residuals
+r.arma = autofit(r, 0:5, 0:5)
+r = Resid(u, NULL, r.arma)
+#plot and test the new residuals
+plot(r, 
+     type="l", 
+     xlab="t", 
+     ylab=expression("r"["t"]), 
+     main=expression("Plot of r"["t"]))
+plota(r)
+test(r)
+```
+
+
+
