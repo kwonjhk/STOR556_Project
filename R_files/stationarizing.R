@@ -21,7 +21,7 @@ stationarizing <- function(x, d, n) {
   plot(x.2,
        type="l",
        xlab="t",
-       ylab=expression("u"["t"]),
-       main = expression("Plot of "*"u"["t"]))
+       ylab=expression("r"["t"]),
+       main = expression("Plot of "*"r"["t"]))
   return(x.2)
 }
