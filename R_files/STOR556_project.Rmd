@@ -49,3 +49,26 @@ plot(r,
 plota(r)
 test(r)
 ```
+```{r}
+#95% and 99% CI for November 2019 prediction
+a=forecast(x, c("season", 12, "trend", 2), r.arma, h=1, opt=1, alpha=.05)
+b=forecast(x, c("season", 12, "trend", 2), r.arma, h=1, opt=1, alpha=.01)
+```
+
+```{r}
+#Create estimation dataset x.1
+x.p = c(x[c(1:length(x))], a$pred[1])
+#xhat is the t value (index in Xt) of November 2019
+xhat = length(x.p)
+
+#plotting 95% and 99% confidence intervals
+plot(c(720:xhat), x.p[c(720:xhat)], type="l", ylim=c(406, 415), main="95% CI for November 2019 Prediction", ylab=expression("X"["t"]*" (ppm)"), xlab="t")
+plotCI(xhat, a$pred[1], ui=a$u[1], li=a$l[1], gap=0, col="red", add=TRUE)
+
+plot(c(720:xhat), x.p[c(720:xhat)], type="l", ylim=c(406, 415), main="99% CI for November 2019 Prediction", ylab=expression("X"["t"]*" (ppm)"), xlab="t")
+plotCI(xhat, b$pred[1], ui=b$u[1], li=b$l[1], col="blue", gap = 0, add=TRUE)
+
+plot(c(720:xhat), x.p[c(720:xhat)], type="l", ylim=c(406, 415), main="95% and 99% CI for November 2019 Prediction", ylab=expression("X"["t"]*" (ppm)"), xlab="t")
+plotCI(xhat, a$pred[1], ui=a$u[1], li=a$l[1], gap=0, col="red", add=TRUE)
+plotCI(xhat, b$pred[1], ui=b$u[1], li=b$l[1], gap=0, col="blue", add=TRUE)
+```
