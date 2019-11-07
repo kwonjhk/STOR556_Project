@@ -19,3 +19,5 @@ library(itsmr)
 kwonjhk@gmail.com or jinhyun@live.unc.edu
 
 ### Authors
+
+Jinhyun Kwon
