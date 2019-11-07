@@ -10,14 +10,16 @@ stationarizing <- function(x, d, n) {
     stop("Third argument must be an integer")
   }
   #deseasonalizing with period d
-  x.1 = Resid(x, c("season", d))
+  s.hat = season(x, 12)
+  x.1 = x-s.hat
   plot(x.1,
        type="l",
        xlab="t",
        ylab=expression("d"["t"]),
        main = expression("Plot of "*"d"["t"]))
   #removing trend with polynomial of degree n
-  x.2 = Resid(x.1, c("trend", n))
+  m.hat = trend(x.1, 2)
+  x.2 = x.1 - m.hat
   plot(x.2,
        type="l",
        xlab="t",
