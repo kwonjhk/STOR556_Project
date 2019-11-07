@@ -7,6 +7,7 @@ output: html_notebook
 #import necessary packages
 library(readr)
 library(itsmr)
+library(gplots)
 #import R scripts
 source("~/Documents/differencing.R")
 source("~/Documents/stationarizing.R")
@@ -19,36 +20,39 @@ plota(x)
 ```
 
 ```{r}
-#use differencing function to remove seasonality and trend
-x.diff = differencing(x, 12, 1)
+#stationarize by deseasonlizing and subtracting fitted quadratic polynomial
+r = stationarizing(x, 12, 2)
 #use autofit function to fit an arma to the stationary residuals
-x.diff.arma = autofit(x.diff, 0:5, 0:5)
-x.diff.resid = Resid(x.diff, NULL, x.diff.arma)
+r.arma = autofit(r, 0:5, 0:5)
+e = Resid(r, NULL, r.arma)
 #plot and test the new residuals
-plot(x.diff.resid, 
+plot(e, 
      type="l", 
      xlab="t", 
-     ylab="residuals", 
-     main="Plot of residuals after fitting ARMA(p,q)")
-plota(x.diff.resid)
-test(x.diff.resid)
+     ylab=expression("e"["t"]), 
+     main=expression("Plot of e"["t"]))
+plota(e)
+test(e)
 ```
 
 ```{r}
-#stationarize by deseasonlizing and subtracting fitted quadratic polynomial
-u = stationarizing(x, 12, 2)
-#use autofit function to fit an arma to the stationary residuals
-r.arma = autofit(u, 0:5, 0:5)
-r = Resid(u, NULL, r.arma)
-#plot and test the new residuals
-plot(r, 
-     type="l", 
-     xlab="t", 
-     ylab=expression("r"["t"]), 
-     main=expression("Plot of r"["t"]))
-plota(r)
-test(r)
+co2_gr <- read_table2("~/Downloads/co2_gr_mlo.txt")
+plot(ann_inc~year, data=co2_gr, type="l", ylab="Annual increase (ppm)", xlab="Year", main=expression("Plot of annual CO"["2"]*" increase"))
+gr = co2_gr$ann_inc
+plot(smooth.ma(gr, 10)~co2_gr$year, type="l", ylab="Annual increase (ppm)", xlab="Year", main=expression("Plot of annual CO"["2"]*" increase after applying MA(10) filter"))
+
+d=x-season(x,12)
+t=c(1:740)
+trend.q = lm(d~I(t^2)+t)
+summary=summary(trend.q)
+plot(d~t, type="l",  main="Plot of fitted quadratic curve", ylab=expression("d"["t"]*" (ppm)"), xlab="t")
+curve(summary$coefficients[2,1]*(x^2) + summary$coefficients[3,1]*x
+      + summary$coefficients[1,1], add=TRUE, col="red")
 ```
+```{r}
+plota(d)
+```
+
 ```{r}
 #95% and 99% CI for November 2019 prediction
 a=forecast(x, c("season", 12, "trend", 2), r.arma, h=1, opt=1, alpha=.05)
